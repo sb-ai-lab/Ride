@@ -37,7 +37,7 @@ class GraphProcessor:
         Adds information about clusters to nodes in the graph.
     """
 
-    def create_G_centroid(H: nx.Graph) -> Tuple[nx.Graph, Dict[int, List[int]]]:
+    def create_G_centroid(self, H: nx.Graph) -> Tuple[nx.Graph, Dict[int, List[int]]]:
         """
         Creates a graph consisting of centroids of clusters and returns this graph along with clusters.
 
@@ -54,13 +54,13 @@ class GraphProcessor:
             A dictionary of clusters, where the key is the cluster number and the value is a list of nodes.
         """
 
-        clusters = GraphProcessor._get_clusters(H)
-        cluster_transitions = GraphProcessor._get_cluster_transitions(clusters, H)
-        centroids = GraphProcessor._get_centroids(clusters, H)
-        G = GraphProcessor._create_graph_from_dict(H, cluster_transitions, centroids)
+        clusters = GraphProcessor._get_clusters(self, H)
+        cluster_transitions = GraphProcessor._get_cluster_transitions(self, clusters, H)
+        centroids = GraphProcessor._get_centroids(self, clusters, H)
+        G = GraphProcessor._create_graph_from_dict(self, H, cluster_transitions, centroids)
         return G, clusters
 
-    def louvain_clusters(H: nx.Graph, seed: int = 0, weight: str = 'length', resolution: float = 1) -> Tuple[nx.Graph, Dict[int, List[int]]]:
+    def louvain_clusters(self, H: nx.Graph, seed: int = 0, weight: str = 'length', resolution: float = 1) -> Tuple[nx.Graph, Dict[int, List[int]]]:
         """
         Applies the Louvain community detection algorithm to the graph.
 
@@ -84,10 +84,10 @@ class GraphProcessor:
         """
 
         communities = nx.community.louvain_communities(H, seed=seed, weight=weight, resolution=resolution)
-        GraphProcessor._add_clusters_to_nodes(H, communities)
+        GraphProcessor._add_clusters_to_nodes(self, H, communities)
         return H, communities
 
-    def create_points_for_test(H: nx.Graph, min_distance: int = 10) -> pd.DataFrame:
+    def create_points_for_test(self, H: nx.Graph, min_distance: int = 10) -> pd.DataFrame:
         """
         Generates points for testing based on clusters and distances between them.
 
@@ -104,13 +104,13 @@ class GraphProcessor:
             The points for testing.
         """
 
-        H, _ = GraphProcessor.louvain_clusters(H, resolution=1, weight='length')
-        G_centroid, clusters = GraphProcessor.create_G_centroid(H)
+        H, _ = GraphProcessor.louvain_clusters(self, H, resolution=1, weight='length')
+        G_centroid, clusters = GraphProcessor.create_G_centroid(self, H)
         random.seed(1)
-        res = DataGenerator.sample_nodes_for_experiment(G_centroid, clusters, min_distance)
+        res = DataGenerator.sample_nodes_for_experiment(self, G_centroid, clusters, min_distance)
         return res
 
-    def search_resolutions(H: nx.Graph, resolution: float = 0.001, weight: str = 'length', alpha_max: float = 0.7) -> Tuple[List[float], List[float], List[int], List[int]]:
+    def search_resolutions(self, H: nx.Graph, resolution: float = 0.001, weight: str = 'length', alpha_max: float = 0.7) -> Tuple[List[float], List[float], List[int], List[int]]:
         """
         Searches for resolutions for the Louvain algorithm, where the desired ratio of the number of clusters to the number of nodes is achieved.
 
@@ -143,7 +143,7 @@ class GraphProcessor:
         edges_subgraph = []
 
         while alpha < alpha_max:
-            H, communities = GraphProcessor.louvain_clusters(H, resolution=resolution, weight=weight)
+            H, communities = GraphProcessor.louvain_clusters(self, H, resolution=resolution, weight=weight)
             alpha = len(communities)/len(H.nodes)
             if alpha < 0.008:
                 resolution *= 3
@@ -160,7 +160,7 @@ class GraphProcessor:
 
         return resolutions, alphas, nodes_subgraph, edges_subgraph
 
-    def _get_clusters(H: nx.Graph) -> Dict[int, List[int]]:
+    def _get_clusters(self, H: nx.Graph) -> Dict[int, List[int]]:
         """
         Extracts clusters from the graph.
 
@@ -182,7 +182,7 @@ class GraphProcessor:
             clusters[cluster].append(node)
         return clusters
 
-    def _get_cluster_transitions(clusters: Dict[int, List[int]], H: nx.Graph) -> Dict[int, List[int]]:
+    def _get_cluster_transitions(self, clusters: Dict[int, List[int]], H: nx.Graph) -> Dict[int, List[int]]:
         """
         Returns a list of neighboring clusters for each cluster.
 
@@ -209,7 +209,7 @@ class GraphProcessor:
             cluster_transitions[cluster] = list(neighboring_clusters)
         return cluster_transitions
 
-    def _get_centroids(clusters: Dict[int, List[int]], H: nx.Graph) -> Dict[int, int]:
+    def _get_centroids(self, clusters: Dict[int, List[int]], H: nx.Graph) -> Dict[int, int]:
         """
         Determines the centroids of clusters.
 
@@ -235,7 +235,7 @@ class GraphProcessor:
             centroids[i] = centroid_node
         return centroids
     
-    def _create_graph_from_dict(H, cluster_transitions: Dict[int, List[int]], centroids: Dict[int, int]) -> nx.Graph:
+    def _create_graph_from_dict(self, H, cluster_transitions: Dict[int, List[int]], centroids: Dict[int, int]) -> nx.Graph:
         """
         Creates a new graph based on centroids and transitions between clusters.
 
@@ -263,7 +263,7 @@ class GraphProcessor:
                 G.add_edge(node, neighbor, weight=length)
         return G
 
-    def _add_clusters_to_nodes(H: nx.Graph, communities: Dict[int, List[int]]) -> None:
+    def _add_clusters_to_nodes(self, H: nx.Graph, communities: Dict[int, List[int]]) -> None:
         """
         Adds information about clusters to nodes in the graph.
 
@@ -299,7 +299,7 @@ class GraphRunner:
         Compute the shortest path length between the pairs of nodes using the centroid graph.
     """
 
-    def test(H: nx.Graph, resolutions: list, k: int=100, min_distance: int=10, weight:str='length'):
+    def test(self, H: nx.Graph, resolutions: list, k: int=100, min_distance: int=10, weight:str='length'):
         """
         Test the performance of the graph clustering algorithm on a given graph.
 
@@ -322,7 +322,7 @@ class GraphRunner:
         """
 
         # Create a list of random pairs of nodes
-        res = GraphProcessor.create_points_for_test(H, min_distance=min_distance)
+        res = GraphProcessor.create_points_for_test(self, H, min_distance=min_distance)
 
         try:
             part = random.sample(res, k=k)
@@ -339,15 +339,15 @@ class GraphRunner:
         }
 
         # Compute the shortest path length between the pairs of nodes using Dijkstra's algorithm
-        time_base_dijkstra, all_length_dijkstra = GraphRunner.compute_shortest_path_length_dijkstra(H, part, weight)
+        time_base_dijkstra, all_length_dijkstra = GraphRunner.compute_shortest_path_length_dijkstra(self, H, part, weight)
         output['time_dijkstra_base'] = time_base_dijkstra
 
         # Compute the shortest path length between the pairs of nodes using the centroid graph
 
         errors_dict = {}
         for c, resolution in enumerate(resolutions):
-            output, all_length_centroids = GraphRunner.compute_shortest_path_length_centroid(H, resolution, part, weight, output)
-            errors = GraphRunner.calculate_error(all_length_dijkstra, all_length_centroids)
+            output, all_length_centroids = GraphRunner.compute_shortest_path_length_centroid(self, H, resolution, part, weight, output)
+            errors = GraphRunner.calculate_error(self, all_length_dijkstra, all_length_centroids)
             output['errors_percent'].append(errors["total_errors"])
 
             errors_dict[output['ks'][c]] = errors["all_errors"]
@@ -359,7 +359,7 @@ class GraphRunner:
 
         return output, errors_dict
 
-    def compute_shortest_path_length_dijkstra(H: nx.Graph, part: list, weight: str):
+    def compute_shortest_path_length_dijkstra(self, H: nx.Graph, part: list, weight: str):
         """
         Compute the shortest path length between the pairs of nodes using Dijkstra's algorithm.
 
@@ -387,7 +387,7 @@ class GraphRunner:
 
         return time_calc, all_length
     
-    def calculate_error(all_length, all_length_centroids):
+    def calculate_error(self, all_length, all_length_centroids):
         """
         Calculate the error between the shortest path lengths computed using Dijkstra's algorithm and the centroid graph.
 
@@ -410,7 +410,7 @@ class GraphRunner:
         return {"total_errors": errors, "all_errors": errors_for_box_plot}
         
 
-    def compute_shortest_path_length_centroid(H: nx.Graph, resolution: int, part: list, weight: str, output):
+    def compute_shortest_path_length_centroid(self, H: nx.Graph, resolution: int, part: list, weight: str, output):
         """
         Compute the shortest path length between the pairs of nodes using the centroid graph.
 
@@ -434,12 +434,12 @@ class GraphRunner:
 
         v1 = []
         e1  =[]
-        H, communities = GraphProcessor.louvain_clusters(H, resolution=resolution, weight=weight)
+        H, communities = GraphProcessor.louvain_clusters(self, H, resolution=resolution, weight=weight)
         k = len(communities)/len(H.nodes)
         output['ks'].append(round(k, 3))
 
         centroid_g_time_creation_start = time.time()
-        G_centroid, clusters = GraphProcessor.create_G_centroid(H)
+        G_centroid, clusters = GraphProcessor.create_G_centroid(self, H)
         centroid_g_time_creation_end = time.time() - centroid_g_time_creation_start
 
         output['time_preprocess_g_centroid_creation'].append(centroid_g_time_creation_end)
@@ -469,7 +469,7 @@ if __name__ == "__main__":
     # Example usage of the GraphProcessor class
     graph = nx.erdos_renyi_graph(100, 0.05)
     gp = GraphProcessor()
-    G, clusters = gp.create_G_centroid(graph)
+    G, clusters = gp.louvain_clusters(graph)
     print("Number of clusters:", len(clusters))
     print("Number of nodes in G:", G.number_of_nodes())
     print("Number of edges in G:", G.number_of_edges())
