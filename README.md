@@ -29,7 +29,7 @@ from ride import graph_generator
 
 # Graph download
 id = "44915"  # or 'R{id}'
-graph = DataGetter.download_graph(id=id)
+graph = DataGetter.download_graph(id=id) #may take some time
 
 #Creating the object to be searched.
 graphModel = graph_generator.generate_layer(graph, resolution=20)
