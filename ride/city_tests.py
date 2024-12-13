@@ -68,17 +68,13 @@ def test_layer(
     """
 
     test_paths: list[float] = []
-    total1, total2, total3 = 0.0,0.0,0.0
     start_time = time.time()
     for point_from, point_to in points:
-        path,s1,s2,s3 = find_path_length(layer, point_from, point_to, alg=alg)
-        total1+=s1
-        total2+=s2
-        total3+=s3
+        path = find_path_length(layer, point_from, point_to, alg=alg)
         test_paths.append(path)
     end_time = time.time()
     test_time = end_time - start_time
-    return test_time, test_paths, total1, total2, total3
+    return test_time, test_paths
 
 
 def get_usual_result(g: nx.Graph, points: list[tuple[int, int]], alg='dijkstra') -> tuple[float, list[float]]:
@@ -261,7 +257,6 @@ def test_graph(graph: nx.Graph,
         edges=len(graph.edges)
     )
 
-    s1,s2,s3 = [],[],[]
     alpha = []
     alphas = set()
     for r in resolutions:
@@ -289,13 +284,10 @@ def test_graph(graph: nx.Graph,
                                                                                           has_coordinates=has_coords,
                                                                                           communities=community,
                                                                                           times=True)
-        test_time, test_paths, total1, total2, total3 = test_layer(points, layer, alg=alg)
+        test_time, test_paths = test_layer(points, layer, alg=alg)
         tmp = [test_time, test_paths]
         total = time.time() - start
 
-        s1.append(total1)
-        s2.append(total2)
-        s3.append(total3)
         alpha.append(a)
         text = """
                 name:           {}

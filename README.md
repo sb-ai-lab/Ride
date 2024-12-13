@@ -24,18 +24,6 @@ to install via pip without listing on pipy do:
 id = "44915"  # or 'R{id}'
 graph = DataGetter.download_graph(id=id)
 
-#Viewing the theoretical acceleration for a graph
-#Visually select the “alpha” range for testing
-N = graph.number_of_nodes()
-plot_theoretical_acceleration(N, (16, 6))
-
-#Graph testing
-#The important thing here is to pick the “resolution” parameter. See logs.
-
-cityResult = city_tests.test_graph(
-    graph, f"{id}", id, logs=False, alg="dijkstra", alpha_range=(0.04, 0.1)
-)
-
 #Creating the object to be searched.
 graphModel = graph_generator.generate_layer(graph, resolution=20)
 
