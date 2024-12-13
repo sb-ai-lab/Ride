@@ -7,7 +7,7 @@ The RIDE is a python library for accelerating Deikstra task on any graphs with h
 
 ***It is worth noting that this method works for both transport and abstract graphs.***
 
-[Telergam support](https://t.me/+mQfNwNFYp5w0MDZi)
+<img align="left" src="./images/Telegram_logo.svg.png" width="3%">[Telergam support](https://t.me/+mQfNwNFYp5w0MDZi)
 
 # Installing
 
