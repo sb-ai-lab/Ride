@@ -19,8 +19,14 @@ to install via pip without listing on pipy do:
 
 
 ```py
-# Graph download
 
+#imports
+from ride.plot_functions import plot_city_results, plot_theoretical_acceleration
+from ride import city_tests
+from ride.utils import DataGetter
+from ride import graph_generator
+
+# Graph download
 id = "44915"  # or 'R{id}'
 graph = DataGetter.download_graph(id=id)
 
