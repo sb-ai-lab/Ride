@@ -1,22 +1,17 @@
-import pickle
-import random
+# import contextily as ctx
+import folium
+import geopandas as gpd
 import matplotlib.pyplot as plt
 import networkx as nx
-from ride.file_name_generator import generate_new_name
-from ride.utils import extract_cluster_list_subgraph
-import folium
-import contextily as ctx
-
-import time
-import numpy as np
+import pickle
+import random
+from pyproj import Transformer
+from shapely.geometry import Point, LineString
 from tqdm import tqdm
 
-import geopandas as gpd
-from shapely.geometry import Point, Polygon, LineString
-from shapely import convex_hull
-from shapely.ops import transform
-from functools import partial
-from pyproj import Transformer
+from ride import pfa
+from ride.file_name_generator import generate_new_name
+from ride.utils import extract_cluster_list_subgraph
 
 
 def find_path(
@@ -54,45 +49,23 @@ def find_path(
     from_cluster = from_d['cluster']
     to_cluster = to_d['cluster']
 
-    def h(a, b):
-        # print(a, b)
-        da = layer.graph.nodes[a]
-        db = layer.graph.nodes[b]
-        return ((da['x'] - db['x']) ** 2 + (da['y'] - db['y']) ** 2) ** 0.5 / 360 * 2 * np.pi * 6371.01 * 1000
-
     if from_cluster == to_cluster:
-        try:
-            g = extract_cluster_list_subgraph(layer.graph, [to_cluster], layer.communities)
-            if alg == 'dijkstra':
-                return nx.single_source_dijkstra(g, from_node, to_node, weight='length')
-            if alg == 'bidirectional':
-                return nx.bidirectional_dijkstra(g, from_node, to_node, weight='length')
-            if alg == 'astar':
-                return [nx.astar_path_length(g, from_node, to_node, weight='length', heuristic=h)]
-        except nx.NetworkXNoPath as e:
-            print('No path found in one cluster')
-            raise e
+        g = extract_cluster_list_subgraph(layer.graph, [to_cluster], layer.communities)
+        if alg == 'dijkstra':
+            return nx.single_source_dijkstra(g, from_node, to_node, weight='length')
+        if alg == 'bidirectional':
+            return nx.bidirectional_dijkstra(g, from_node, to_node, weight='length')
 
     from_center = layer.cluster_to_center[from_cluster]
     to_center = layer.cluster_to_center[to_cluster]
 
-    try:
-        start = time.time()
-        g = layer.centroids_graph
-        path = []
-        if alg == 'dijkstra':
-            path = nx.single_source_dijkstra(g, from_center, to_center, weight='length')
-        if alg == 'bidirectional':
-            path = nx.bidirectional_dijkstra(g, from_center, to_center, weight='length')
-        if alg == 'astar':
-            path = [nx.astar_path_length(g, from_center, to_center, weight='length', heuristic=h)]
-        end = time.time()
-        step1 = end - start
-    except nx.NetworkXNoPath as e:
-        print('No path found in clusters')
-        raise e
+    g = layer.centroids_graph
+    path = []
+    if alg == 'dijkstra':
+        path = nx.single_source_dijkstra(g, from_center, to_center, weight='length')
+    if alg == 'bidirectional':
+        path = nx.bidirectional_dijkstra(g, from_center, to_center, weight='length')
 
-    start = time.time()
     cls = set()
     cls.add(to_cluster)
     for u in path[1]:
@@ -100,29 +73,12 @@ def find_path(
         cls.add(c)
 
     g = extract_cluster_list_subgraph(layer.graph, cls, layer.communities)
-    end = time.time()
-    step2 = end - start
-    try:
-        start = time.time()
 
-        if alg == 'dijkstra':
-            path = nx.single_source_dijkstra(g, from_node, to_node, weight='length')
-        if alg == 'bidirectional':
-            path = nx.bidirectional_dijkstra(g, from_node, to_node, weight='length')
-        if alg == 'astar':
-            path = [nx.astar_path_length(g, from_node, to_node, weight='length', heuristic=h)]
-        end = time.time()
-        step3 = end - start
-        # tqdm.write(f"""
-        # step1: {step1}
-        # step2: {step2}
-        # step3: {step3}
-        # """)
-        return path
-    except nx.NetworkXNoPath as e:
-        print(nx.is_connected(g))
-        print('No path in cluster subgraph')
-        raise e
+    if alg == 'dijkstra':
+        path = nx.single_source_dijkstra(g, from_node, to_node, weight='length')
+    if alg == 'bidirectional':
+        path = nx.bidirectional_dijkstra(g, from_node, to_node, weight='length')
+    return path
 
 
 def find_path_length(
@@ -160,45 +116,23 @@ def find_path_length(
     from_cluster = from_d['cluster']
     to_cluster = to_d['cluster']
 
-    def h(a, b):
-        # print(a, b)
-        da = layer.graph.nodes[a]
-        db = layer.graph.nodes[b]
-        return ((da['x'] - db['x']) ** 2 + (da['y'] - db['y']) ** 2) ** 0.5 / 360 * 2 * np.pi * 6371.01 * 1000
-
     if from_cluster == to_cluster:
-        try:
-            g = extract_cluster_list_subgraph(layer.graph, [to_cluster], layer.communities)
-            if alg == 'dijkstra':
-                return nx.single_source_dijkstra(g, from_node, to_node, weight='length')[0], 0,0,0
-            if alg == 'bidirectional':
-                return nx.bidirectional_dijkstra(g, from_node, to_node, weight='length')[0], 0,0,0
-            if alg == 'astar':
-                return nx.astar_path_length(g, from_node, to_node, weight='length', heuristic=h), 0,0,0
-        except nx.NetworkXNoPath as e:
-            print('No path found in one cluster')
-            return -1
+        g = extract_cluster_list_subgraph(layer.graph, [to_cluster], layer.communities)
+        if alg == 'dijkstra':
+            return nx.single_source_dijkstra(g, from_node, to_node, weight='length')[0]
+        if alg == 'bidirectional':
+            return nx.bidirectional_dijkstra(g, from_node, to_node, weight='length')[0]
 
     from_center = layer.cluster_to_center[from_cluster]
     to_center = layer.cluster_to_center[to_cluster]
 
-    try:
-        start = time.time()
+    g = layer.centroids_graph
+    path = []
+    if alg == 'dijkstra':
+        path = nx.single_source_dijkstra(g, from_center, to_center, weight='length')[1]
+    if alg == 'bidirectional':
+        path = nx.bidirectional_dijkstra(g, from_center, to_center, weight='length')[1]
 
-        g = layer.centroids_graph
-        path = []
-        if alg == 'dijkstra':
-            path = nx.single_source_dijkstra(g, from_center, to_center, weight='length')[1]
-        if alg == 'bidirectional':
-            path = nx.bidirectional_dijkstra(g, from_center, to_center, weight='length')[1]
-        if alg == 'astar':
-            path = nx.astar_path(g, from_center, to_center, weight='length', heuristic=h)
-        end = time.time()
-        step1 = end - start
-    except nx.NetworkXNoPath as e:
-        print('No path found in clusters')
-        return -1
-    start = time.time()
     cls2next = {}
     cls = set()
     cls.add(to_cluster)
@@ -212,37 +146,13 @@ def find_path_length(
         cls.add(c)
     cls2next[prev] = to_node
 
-    def h1(a, b):
-        da = layer.graph.nodes[a]
-        db = layer.graph.nodes[cls2next[da['cluster']]]
-        # db = layer.graph.nodes[b]
-        return ((da['x'] - db['x']) ** 2 + (da['y'] - db['y']) ** 2) ** 0.5 / 360 * 2 * np.pi * 6371.01 * 1000
-
     g = extract_cluster_list_subgraph(layer.graph, cls, layer.communities)
-    end = time.time()
-    step2 = end - start
-    try:
-        start = time.time()
 
-        if alg == 'dijkstra':
-            path = nx.single_source_dijkstra(g, from_node, to_node, weight='length')[0]
-        if alg == 'bidirectional':
-            path = nx.bidirectional_dijkstra(g, from_node, to_node, weight='length')[0]
-        if alg == 'astar':
-            path = nx.astar_path_length(g, from_node, to_node, weight='length', heuristic=h1)
-        end = time.time()
-        step3 = end - start
-        # tqdm.write(f"""
-        # step1: {step1}
-        # step2: {step2}
-        # step3: {step3}
-        # """)
-        return path, step1,step2,step3
-    except nx.NetworkXNoPath as e:
-        print(nx.is_connected(g))
-        print('No path in cluster subgraph')
-        return -1
-
+    if alg == 'dijkstra':
+        path = nx.single_source_dijkstra(g, from_node, to_node, weight='length')[0]
+    if alg == 'bidirectional':
+        path = nx.bidirectional_dijkstra(g, from_node, to_node, weight='length')[0]
+    return path
 
 
 class CentroidResult:
@@ -412,22 +322,25 @@ class GraphLayer:
         self.communities = communities
         self.centroids_graph = centroids_graph
         self.graph = graph
+        self.cluster_adjacency, self.node_dst = self._compute()
 
     def draw_graph(self, visible=False):
         m = folium.Map(zoom_start=12)
 
         for node in self.graph.nodes():
-            folium.Circle([self.graph.nodes[node]['y'], self.graph.nodes[node]['x']], popup=str(node), fill=True).add_to(m)
+            folium.Circle([self.graph.nodes[node]['y'], self.graph.nodes[node]['x']], popup=str(node),
+                          fill=True).add_to(m)
         for edge in self.graph.edges():
-            folium.PolyLine([[self.graph.nodes[edge[0]]['y'], self.graph.nodes[edge[0]]['x']], [self.graph.nodes[edge[1]]['y'], self.graph.nodes[edge[1]]['x']]], color='blue', weight=2).add_to(m)
-        
+            folium.PolyLine([[self.graph.nodes[edge[0]]['y'], self.graph.nodes[edge[0]]['x']],
+                             [self.graph.nodes[edge[1]]['y'], self.graph.nodes[edge[1]]['x']]], color='blue',
+                            weight=2).add_to(m)
+
         m.save('graph.html')
 
         if visible:
-           return m
+            return m
 
-
-    def draw_path(self, nodes: list[int], x: list[float] = None, y: list[float]= None, visible=False, save=False):
+    def draw_path(self, nodes: list[int], x: list[float] = None, y: list[float] = None, visible=False, save=False):
         if not x:
             x = [self.graph.nodes[node]['x'] for node in nodes]
         if not y:
@@ -440,15 +353,15 @@ class GraphLayer:
 
         if save:
             m.save('path.html')
-        
+
         if visible:
-           return m
-        
-        
-    def draw_paths_ctx(self, from_node: int, to_node: int, alg: str = 'dijkstra', weight: str = 'length', visible=False, save=False):
+            return m
+
+    def draw_paths_ctx(self, from_node: int, to_node: int, alg: str = 'dijkstra', weight: str = 'length', visible=False,
+                       save=False):
         distance, nodes = self.find_path(from_node, to_node, alg)
         distance_original, path_original = self.find_path_original_graph(from_node, to_node, weight)
-        
+
         x = [self.graph.nodes[node]['x'] for node in nodes]
         y = [self.graph.nodes[node]['y'] for node in nodes]
         x_original = [self.graph.nodes[node]['x'] for node in path_original]
@@ -460,22 +373,22 @@ class GraphLayer:
 
         # Преобразуем координаты из EPSG:4326 в EPSG:3857
         transformer = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
-        
+
         # Применяем трансформацию к каждой координате в LineString
         gdf_custom['geometry'] = gdf_custom['geometry'].apply(
             lambda geom: LineString([transformer.transform(xy[0], xy[1]) for xy in geom.coords])
         )
-        
+
         gdf_original['geometry'] = gdf_original['geometry'].apply(
             lambda geom: LineString([transformer.transform(xy[0], xy[1]) for xy in geom.coords])
         )
 
         # Отображаем данные на карте
-        ax = gdf_custom.plot(color='red', figsize=(10, 10), label=f'Custom Path (Distance: {distance/1000:.2f} km)')
-        gdf_original.plot(ax=ax, color='blue', label=f'Original Path (Distance: {distance_original/1000:.2f} km)')
-        
+        ax = gdf_custom.plot(color='red', figsize=(10, 10), label=f'Custom Path (Distance: {distance / 1000:.2f} km)')
+        gdf_original.plot(ax=ax, color='blue', label=f'Original Path (Distance: {distance_original / 1000:.2f} km)')
+
         # Добавляем подложку с картой
-        ctx.add_basemap(ax, zoom=12, source=ctx.providers.OpenStreetMap.Mapnik)
+        # ctx.add_basemap(ax, zoom=12, source=ctx.providers.OpenStreetMap.Mapnik)
 
         # Убираем оси
         ax.set_axis_off()
@@ -490,11 +403,11 @@ class GraphLayer:
         if visible:
             plt.show()
 
-        
-    def draw_paths_folium(self, from_node: int, to_node: int, alg: str = 'dijkstra', weight: str = 'length', visible=False, save=False):
+    def draw_paths_folium(self, from_node: int, to_node: int, alg: str = 'dijkstra', weight: str = 'length',
+                          visible=False, save=False):
         distance, nodes = self.find_path(from_node, to_node, alg)
         distance_original, path_original = self.find_path_original_graph(from_node, to_node, weight)
-                
+
         x = [self.graph.nodes[node]['x'] for node in nodes]
         y = [self.graph.nodes[node]['y'] for node in nodes]
         x_original = [self.graph.nodes[node]['x'] for node in path_original]
@@ -510,7 +423,8 @@ class GraphLayer:
         for i in range(len(nodes) - 1):
             folium.PolyLine([[y[i], x[i]], [y[i + 1], x[i + 1]]], color='red', weight=5).add_to(layer_custom)
         for i in range(len(path_original) - 1):
-            folium.PolyLine([[y_original[i], x_original[i]], [y_original[i + 1], x_original[i + 1]]], color='blue', weight=5).add_to(layer_original)
+            folium.PolyLine([[y_original[i], x_original[i]], [y_original[i + 1], x_original[i + 1]]], color='blue',
+                            weight=5).add_to(layer_original)
 
         # Добавляем группы слоев на карту
         layer_custom.add_to(m)
@@ -521,21 +435,23 @@ class GraphLayer:
 
         if save:
             m.save('paths_folium.html')
-                    
+
         if visible:
             return m
 
-
-
-    def find_path(self, from_node: int, to_node: int, alg: str = 'dijkstra', draw_path=False, visible=False, save=False) -> tuple[float, list[int]]:
-        distance, nodes = find_path(self, from_node, to_node, alg)
-        x = [self.graph.nodes[node]['x'] for node in nodes]
-        y = [self.graph.nodes[node]['y'] for node in nodes]
+    def find_path(self, from_node: int, to_node: int, alg: str = 'heuristic', draw_path=False, visible=False,
+                  save=False) -> tuple[float, list[int]]:
+        if alg == 'heuristic':
+            distance, nodes = pfa.pfa_heuristic(self.graph, from_node, to_node, self.cluster_adjacency, self.node_dst)
+        else:
+            distance, nodes = find_path(self, from_node, to_node, alg)
         if draw_path:
+            x = [self.graph.nodes[node]['x'] for node in nodes]
+            y = [self.graph.nodes[node]['y'] for node in nodes]
             maps = self.draw_path(nodes, x, y, visible=visible, save=save)
             return distance, nodes, maps
         return distance, nodes
-    
+
     def find_path_original_graph(self, from_node: int, to_node: int, weight: str = 'length') -> tuple[float, list[int]]:
         distance, path = nx.single_source_dijkstra(self.graph, from_node, to_node, weight=weight)
         return distance, path
@@ -576,7 +492,7 @@ class GraphLayer:
         ax = gdf_points.plot(marker='o', color=colors, markersize=markersize, figsize=(10, 10), alpha=alpha)
 
         # Добавляем подложку карты
-        ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
+        # ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
 
         # Убираем оси
         ax.set_axis_off()
@@ -593,11 +509,12 @@ class GraphLayer:
 
     def generate_colors(self, num_colors):
         return [self.random_color_hex() for _ in range(num_colors)]
-    
-    def draw_path_through_clusters(self, from_node: int, to_node: int, alg: str = 'dijkstra', markersize=5, alpha=0.7, visible=False, save=False):
+
+    def draw_path_through_clusters(self, from_node: int, to_node: int, alg: str = 'dijkstra', markersize=5, alpha=0.7,
+                                   visible=False, save=False):
         """
         Находит путь между двумя точками и отображает только те точки и кластеры, через которые проходит маршрут.
-        
+
         Parameters:
         -----------
         from_node : int
@@ -616,10 +533,10 @@ class GraphLayer:
 
         # Шаг 1: Находим путь между двумя точками
         distance, nodes = self.find_path(from_node, to_node, alg)
-        
+
         # Шаг 2: Определяем кластеры, через которые проходит маршрут
         clusters_passed = set(self.graph.nodes[node]['cluster'] for node in nodes)
-        
+
         points = []
         colors = []
 
@@ -658,7 +575,7 @@ class GraphLayer:
         gdf_path.plot(ax=ax, color='red', linewidth=2, label=f'Маршрут {alg} (длина: {distance:.2f})')
 
         # Добавляем подложку карты
-        ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
+        # ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
 
         # Убираем оси
         ax.set_axis_off()
@@ -673,3 +590,17 @@ class GraphLayer:
         if visible:
             plt.show()
 
+    def _compute(self):
+        dst = dict(nx.all_pairs_dijkstra_path_length(self.centroids_graph, weight='length'))
+        d_clusters = {}
+        d_nodes = {}
+        for u in tqdm(dst):
+            for v in dst[u]:
+                c1, c2 = self.graph.nodes[u]['cluster'], self.graph.nodes[v]['cluster']
+                d_clusters[c1, c2] = dst[u][v]
+                d_clusters[c2, c1] = dst[u][v]
+
+        for u, d in tqdm(self.graph.nodes(data=True)):
+            c = self.cluster_to_center[d['cluster']]
+            d_nodes[u] = nx.single_source_dijkstra(self.graph, u, c, weight='length')[0]
+        return d_clusters, d_nodes
