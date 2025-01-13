@@ -24,11 +24,11 @@ osm_cities_example = {
 
 
 # load graph
-def get_graph(city_id: str = 'R2555133', path: Optional[str] = '../data/graphs') -> nx.Graph:
+def get_graph(city_id: str = 'R2555133', cache_path: Optional[str] = None) -> nx.Graph:
     id_graph = city_id
     name = f'{id_graph}.pickle'
-    if path is not None:
-        path = os.path.join(path, name)
+    if cache_path is not None:
+        path = os.path.join(cache_path, name)
         if os.path.exists(path):
             with open(path, 'rb') as fp:
                 g: nx.Graph = pickle.load(fp)
