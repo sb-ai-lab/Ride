@@ -19,27 +19,30 @@ to install via pip without listing on pipy do:
 # Quick start
 
 
-```py
+```jupyterpython
+from ride import graph_osm_loader
+import ride.path_finding as pfa 
+import ride.clustering as cls
+from ride import centroids_graph_builder as cgb
 
-#imports
-from ride.plot_functions import plot_city_results, plot_theoretical_acceleration
-from ride import city_tests
-from ride.utils import DataGetter
-from ride import graph_generator
+id = graph_osm_loader.osm_cities_example['Paris']
+g = graph_osm_loader.get_graph(id)
+cms_resolver = cls.LouvainCommunityResolver(resolution=1)
 
-# Graph download
-id = "44915"  # or 'R{id}'
-graph = DataGetter.download_graph(id=id) #may take some time
-
-#Creating the object to be searched.
-graphModel = graph_generator.generate_layer(graph, resolution=20)
-
-#Final distance, path by node and map display (map optional)
-point_from = 2791569568
-point_to = 1666166594
-distance, path, maps = graphModel.find_path(
-    point_from, point_to, draw_path=True, visible=True
+# Exact path , but need more memory
+exact_algorithm = pfa.MinClusterDistanceBuilder().build_astar(g, cms_resolver)
+# Suboptimal paths, with low memory consumption 
+cg = cgb.CentroidGraphBuilder().build(g, cms_resolver)
+suboptimal_algorithm = pfa.ExtractionPfa(
+    g = g,
+    upper=pfa.Dijkstra(cg.g),
+    down=pfa.Dijkstra(g)
 )
+
+nodes = list(g.nodes())
+s,t = nodes[0], nodes[1]
+
+length,path = exact_algorithm.find_path(s,t)
 ```
 
 
