@@ -1,1 +1,1 @@
-from ride.drawer.folium_drawer import  *
+from ride.drawer.folium_drawer import *

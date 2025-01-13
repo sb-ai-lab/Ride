@@ -1,2 +1,2 @@
-import path_finding
 import clustering
+import path_finding

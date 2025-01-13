@@ -4,6 +4,7 @@ from heapq import heappop, heappush
 from itertools import count
 from multiprocessing import Pool
 from typing import Callable
+
 import networkx as nx
 import numpy as np
 from tqdm.auto import tqdm
