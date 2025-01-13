@@ -18,12 +18,11 @@ to install via pip without listing on pipy do:
 
 # Quick start
 
-
 ```jupyterpython
 from ride import graph_osm_loader
-import ride.path_finding as pfa 
+import ride.path_finding as pfa
 import ride.clustering as cls
-from ride import centroids_graph_builder as cgb
+from ride.centroid_graph import centroids_graph_builder as cgb
 
 id = graph_osm_loader.osm_cities_example['Paris']
 g = graph_osm_loader.get_graph(id)
@@ -34,15 +33,15 @@ exact_algorithm = pfa.MinClusterDistanceBuilder().build_astar(g, cms_resolver)
 # Suboptimal paths, with low memory consumption 
 cg = cgb.CentroidGraphBuilder().build(g, cms_resolver)
 suboptimal_algorithm = pfa.ExtractionPfa(
-    g = g,
+    g=g,
     upper=pfa.Dijkstra(cg.g),
     down=pfa.Dijkstra(g)
 )
 
 nodes = list(g.nodes())
-s,t = nodes[0], nodes[1]
+s, t = nodes[0], nodes[1]
 
-length,path = exact_algorithm.find_path(s,t)
+length, path = exact_algorithm.find_path(s, t)
 ```
 
 

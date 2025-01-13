@@ -11,6 +11,8 @@ __all__ = [
     "CentroidGraphBuilder"
 ]
 
+from ride.path_finding.advenced_pfa import PathFindingAdvanced
+
 
 @dataclass
 class CentroidGraph:
@@ -30,7 +32,7 @@ class CentroidGraphBuilder:
     def build(self, g: nx.Graph, cms: AbstractCommunityResolver | Community) -> CentroidGraph:
         if isinstance(cms, AbstractCommunityResolver):
             cms = cms.resolve(g)
-        cls2n = get_cls2n(g, name=self.name)
+        cls2n = get_cluster_adjacency_matrix(g, name=self.name)
         g1, cls2c = build_center_graph(
             graph=g,
             communities=cms,
@@ -55,7 +57,7 @@ class CentroidGraphBuilder:
 
 
 # cluster to neighboring clusters
-def get_cls2n(graph: nx.Graph, name='cluster') -> dict[int: set[int]]:
+def get_cluster_adjacency_matrix(graph: nx.Graph, name='cluster') -> dict[int: set[int]]:
     _cls2n = {}
     for u, du in graph.nodes(data=True):
         for v in graph[u]:
@@ -73,7 +75,7 @@ def get_cls2n(graph: nx.Graph, name='cluster') -> dict[int: set[int]]:
     return _cls2n
 
 
-# cluster then yts point that are connected with neighboring clusters
+# cluster to point that are connected with neighboring clusters
 def get_cls2hubs(graph: nx.Graph, name='cluster') -> dict[int: set[int]]:
     _cls2hubs = {}
     for u, du in graph.nodes(data=True):
@@ -102,25 +104,25 @@ def build_center_graph(
         weight: str = 'length'
 ) -> tuple[nx.Graph, dict[int, int]]:
     x_graph = nx.Graph()
-    cls2c = {}
+    cls2center = {}
     _iter = tqdm(enumerate(communities), total=len(communities), desc='find centroids') if log else enumerate(
         communities)
     for cls, _ in _iter:
-        gc = extract_cluster_list_subgraph(graph, [cls], communities)
+        gc = extract_cluster_list_subgraph(graph, {cls}, communities)
         min_node = nx.barycenter(gc, weight=weight)[0]
         du = graph.nodes()[min_node]
         x_graph.add_node(graph.nodes()[min_node][name], **du)
-        cls2c[graph.nodes()[min_node][name]] = min_node
+        cls2center[graph.nodes()[min_node][name]] = min_node
 
     if len(x_graph.nodes) == 1:
-        return x_graph, cls2c
+        return x_graph, cls2center
     _iter = tqdm(x_graph.nodes(), desc='find edges') if log else x_graph.nodes()
+    a_pfa: PathFindingAdvanced = PathFindingAdvanced(graph, weight=weight)
     for u in _iter:
-        # todo find path from point to set points
+        lengths = a_pfa.find_distance_to_all(cls2center[u], set(cls2center[v] for v in cls2n[u]))
         for v in cls2n[u]:
-            length = nx.single_source_dijkstra(graph, source=cls2c[u], target=cls2c[v], weight=weight)[0]
-            x_graph.add_edge(u, v, length=length)
-    return x_graph, cls2c
+            x_graph.add_edge(u, v, length=lengths[cls2center[v]])
+    return x_graph, cls2center
 
 
 # extract subgraph by clusters
