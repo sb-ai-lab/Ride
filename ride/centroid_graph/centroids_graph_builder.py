@@ -5,13 +5,13 @@ from tqdm.auto import tqdm
 
 from ride import utils
 from ride.clustering import AbstractCommunityResolver, Community
+from ride.path_finding.advenced_pfa import PathFindingAdvanced
+
 
 __all__ = [
     "CentroidGraph",
     "CentroidGraphBuilder"
 ]
-
-from ride.path_finding.advenced_pfa import PathFindingAdvanced
 
 
 @dataclass
@@ -53,7 +53,7 @@ class CentroidGraphBuilder:
 
     def build_with_time(self, g: nx.Graph, cms: AbstractCommunityResolver | Community, iterations=1) -> (
             tuple)[float, CentroidGraph]:
-        return utils.compute(lambda: self.build(g, cms), iterations=iterations)
+        return utils.get_execution_time(lambda: self.build(g, cms), iterations=iterations)
 
 
 # cluster to neighboring clusters

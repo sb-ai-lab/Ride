@@ -4,6 +4,10 @@ from itertools import count
 
 import networkx as nx
 
+__all__ = [
+    'PathFindingAdvanced'
+]
+
 
 @dataclass
 class PathFindingAdvanced:
