@@ -3,7 +3,7 @@ from heapq import heappop, heappush
 from itertools import count
 from typing import Callable, Optional
 
-from ride.path_finding.pfa import Path, PathFindingCls
+from ride_pfa.path_finding.pfa import Path, PathFindingCls
 
 __all__ = [
     'Dijkstra',

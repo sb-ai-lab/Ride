@@ -1,6 +1,6 @@
 from networkx import Graph
 
-from ride.path_finding.pfa import PathFinding, Path, PathFindingCls
+from ride_pfa.path_finding.pfa import PathFinding, Path, PathFindingCls
 
 __all__ = [
     'ExtractionPfa'

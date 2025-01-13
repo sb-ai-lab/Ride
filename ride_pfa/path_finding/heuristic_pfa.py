@@ -9,9 +9,9 @@ import networkx as nx
 import numpy as np
 from tqdm.auto import tqdm
 
-from ride.clustering import AbstractCommunityResolver, Community
-from ride.path_finding.dijkstra_pfa import AStar
-from ride.path_finding.pfa import PathFinding
+from ride_pfa.clustering import AbstractCommunityResolver, Community
+from ride_pfa.path_finding.dijkstra_pfa import AStar
+from ride_pfa.path_finding.pfa import PathFinding
 
 __all__ = [
     'HeuristicBuilder',

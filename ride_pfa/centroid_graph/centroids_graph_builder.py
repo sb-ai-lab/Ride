@@ -3,9 +3,9 @@ from dataclasses import dataclass
 import networkx as nx
 from tqdm.auto import tqdm
 
-from ride import utils
-from ride.clustering import AbstractCommunityResolver, Community
-from ride.path_finding.advenced_pfa import PathFindingAdvanced
+from ride_pfa import utils
+from ride_pfa.clustering import AbstractCommunityResolver, Community
+from ride_pfa.path_finding.advenced_pfa import PathFindingAdvanced
 
 
 __all__ = [

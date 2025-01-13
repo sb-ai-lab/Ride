@@ -4,7 +4,7 @@ from typing import Optional
 import folium
 import networkx as nx
 
-from ride.clustering import Community
+from ride_pfa.clustering import Community
 
 __all__ = [
     'draw_graph',

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ride"
+name = "ride_pfa"
 version = "0.1.1"
 description = ""
 authors = ["Your Name <you@example.com>"]

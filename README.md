@@ -19,10 +19,10 @@ to install via pip without listing on pipy do:
 # Quick start
 
 ```jupyterpython
-from ride import graph_osm_loader
-import ride.path_finding as pfa
-import ride.clustering as cls
-from ride.centroid_graph import centroids_graph_builder as cgb
+from ride_pfa import graph_osm_loader
+import ride_pfa.path_finding as pfa
+import ride_pfa.clustering as cls
+from ride_pfa.centroid_graph import centroids_graph_builder as cgb
 
 id = graph_osm_loader.osm_cities_example['Paris']
 g = graph_osm_loader.get_graph(id)
