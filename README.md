@@ -1,7 +1,5 @@
 
-# RIDE
-
-<img align="right" src="./images/Ride_Logo-05.png" alt="Your Banner" width="55%">
+<img  src="./images/Ride_Logo-05.png" alt="Your Banner" width="30%">
 
 
 The RIDE is a python library for accelerating Deikstra task on any graphs with hierarchical method involving solving a problem on simpler graphs with further combining solutions into a common one. The method is based on the division of the graph into clusters. By using this division, you can eliminate many sub optimal route constructions and achieve multiple-time acceleration without significant loss of accuracy. More information about method ine can find soon in corresponding _article_.
