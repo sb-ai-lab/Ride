@@ -10,10 +10,15 @@ The RIDE is a python library for accelerating Deikstra task on any graphs with h
 
 # Installing
 
-to install via pip without listing on pipy do: 
+to install via pip without listing on pypi do: 
 ```
 !pip install git+https://github.com/sb-ai-lab/Ride
 ```
+to install via pip witр pypi do: 
+```
+!pip install ride-pfa
+```
+
 
 # Quick start
 
