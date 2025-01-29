@@ -63,9 +63,7 @@ length, path = exact_algorithm.find_path(s, t)
 
 # Findings
 
-The relationship between theoretical estimations and empirical cal-
-culations. Figure 1,3 – the relationship between the maximum of acceleration γmax and the number of vertices N0 in the graph.
-the relationship between the optimal value of the α∗parameter and the number of vertices N0. Figure 2 – the dependence of the maximum acceleration γmax on the graph density D (unscaled characteristic) along with the theoretical estimations, considering the equality given by D=2β0/N0.
+Theoretical estimations and empirical calculations are compared through graphical representations. Figure 1 illustrates the correlation between the maximum acceleration γmax and the number of vertices N0 in the graph. Figure 3 depicts the relationship between the optimal value of the α* parameter and N0. Figure 2 demonstrates the dependence of γmax on graph density D, an unscaled characteristic, alongside theoretical estimations. This comparison considers the equality D=2β0/N0, where β0 represents the average degree of vertices. These visualizations provide insights into the algorithm's performance across various graph configurations, enabling a comprehensive understanding of its efficiency and scalability.
 
 Developed algorithm was applied for 600 cities and the following dependencies were obtained:
 
