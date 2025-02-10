@@ -7,12 +7,12 @@ import networkx as nx
 from ride_pfa.clustering import Community
 
 __all__ = [
-    'draw_graph',
-    'draw_path'
+    'draw_graph_folium',
+    'draw_path_folium'
 ]
 
 
-def draw_graph(
+def draw_graph_folium(
         graph: nx.Graph,
         cms: Optional[Community] = None,
         m: Optional[folium.Map] = None) -> folium.Map:
@@ -52,7 +52,7 @@ def draw_graph(
     return m
 
 
-def draw_path(graph: nx.Graph, path: list[int],
+def draw_path_folium(graph: nx.Graph, path: list[int],
               m: Optional[folium.Map],
               color: str = 'red',
               weight: float = 5) -> folium.Map:
