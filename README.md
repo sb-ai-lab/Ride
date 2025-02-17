@@ -21,6 +21,8 @@ to install via pip witр pypi do:
 
 # Quick start
 
+You can find Ride usage in GoogleColab [![Open In Collab](https://colab.research.google.com/assets/colab-badge.svg)](https://drive.google.com/file/d/1oQFmo8TO8dmk40c2CmBJgor_ufK0b0f0/view?usp=drive_link)
+
 ```jupyterpython
 from ride_pfa import graph_osm_loader
 import ride_pfa.path_finding as pfa
