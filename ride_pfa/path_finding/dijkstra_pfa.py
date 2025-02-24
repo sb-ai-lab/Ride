@@ -3,6 +3,7 @@ from heapq import heappop, heappush
 from itertools import count
 from typing import Callable, Optional
 
+from ride_pfa.exceptions import RidePathNotFoundException
 from ride_pfa.path_finding.pfa import Path, PathFindingCls
 
 __all__ = [
@@ -47,6 +48,8 @@ class Dijkstra(PathFindingCls):
                 vu_dist = d + e[weight]
                 if u not in dist:
                     push(fringe, (vu_dist, next(c), n + 1, u, v))
+        if end not in dist:
+            raise RidePathNotFoundException(f"No path between {start} and {end}")
         d, n = dist[end]
         n += 1
         path = [None] * n
@@ -117,7 +120,8 @@ class BiDijkstra(PathFindingCls):
                         union_node = u
             if d1 + d2 > union_dst:
                 break
-
+        if union_node is None:
+            raise RidePathNotFoundException(f"No path between {start} and {end}")
         d1, n1, _ = dist[0][union_node]
         d2, n2, _ = dist[1][union_node]
         path = [0] * (n1 + n2 + 1)
@@ -179,7 +183,8 @@ class AStar(PathFindingCls):
                 if u not in dist or vu_dist < dist[u][0]:
                     dist[u] = (vu_dist, v)
                     push(fringe, (vu_dist + h(u, end), next(c), vu_dist, u))
-
+        if end not in dist:
+            raise RidePathNotFoundException(f"No path between {start} and {end}")
         path = []
         e = end
         while e is not None:
