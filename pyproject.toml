@@ -22,7 +22,6 @@ matplotlib = "^3.8.4"
 furo = "^2024.8.6"
 folium = "^0.17.0"
 contextily = "^1.6.2"
-scikit-learn = "^1.5.1"
 kmedoids = "^0.5.3.1"
 
 
