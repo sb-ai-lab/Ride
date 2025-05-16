@@ -362,6 +362,18 @@ def add_time_window(
         False,  # Don't force start cumul to zero.
         time_dimension_name,
     )
+    
+    # time_dimension = routing.GetDimensionOrDie(time_dimension_name)
+
+    # min_time = min(d for _, d in graph.nodes(data='start_time'))
+
+    # for u, d in graph.nodes(data=True):
+    #     index = manager.NodeToIndex(problem_data.node2index[u])
+
+    #     from_time = int((d['start_time'] - min_time).total_seconds() // 60)
+    #     to_time = int((d['end_time'] - min_time).total_seconds() // 60)
+    #     # print(from_time, to_time)
+    #     time_dimension.CumulVar(index).SetRange(from_time, to_time)
 
 
 def add_pick_up_and_delivery(
