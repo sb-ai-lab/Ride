@@ -1,0 +1,17 @@
+absl-py==2.2.2
+certifi==2025.4.26
+charset-normalizer==3.4.1
+idna==3.10
+immutabledict==4.2.1
+networkx==3.4.2
+numpy==2.2.5
+ortools==9.12.4544
+pandas==2.2.3
+protobuf==5.29.4
+python-dateutil==2.9.0.post0
+pytz==2025.2
+requests==2.32.3
+scipy==1.15.2
+six==1.17.0
+tzdata==2025.2
+urllib3==2.4.0
