@@ -51,11 +51,6 @@ class CentroidGraphBuilder:
         )
         return cg
 
-    def build_with_time(self, g: nx.Graph, cms: AbstractCommunityResolver | Community, iterations=1) -> (
-            tuple)[float, CentroidGraph]:
-        return utils.get_execution_time(lambda: self.build(g, cms), iterations=iterations)
-
-
 # cluster to neighboring clusters
 def get_cluster_adjacency_matrix(graph: nx.Graph, name='cluster') -> dict[int: set[int]]:
     _cls2n = {}
