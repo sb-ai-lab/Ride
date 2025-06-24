@@ -52,7 +52,8 @@ class LouvainCommunityResolver(AbstractCommunityResolver):
 @dataclass
 class LouvainKMeansCommunityResolver(LouvainCommunityResolver):
     """
-        A graph clustering algorithm that takes Louvain's algorithm (for finding centroids) as a basis and then applies K-means
+        A graph clustering algorithm that takes Louvain's algorithm with "weight" (for finding centroids) as
+         a basis and then applies K-means
     """
     """
         Number of Iteration for K-means
