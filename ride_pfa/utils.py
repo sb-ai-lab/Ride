@@ -1,3 +1,4 @@
+import random
 import time
 from typing import Any, Callable, Optional
 
@@ -6,7 +7,9 @@ import numpy as np
 
 __all__ = [
     'get_optimal_clusters_number',
-    'get_execution_time'
+    'get_execution_time',
+    'add_inverse_edges_weight',
+    'generate_points'
 ]
 
 
@@ -46,3 +49,36 @@ def add_inverse_edges_weight(
     for u, v, d in g.edges(data=True):
         d[inverse_weight] = 1 / (d[weight] + eps)
     return inverse_weight
+
+
+def get_node_for_initial_graph(graph: nx.Graph):
+    """
+
+    Parameters
+    ----------
+    graph - graph
+
+    Returns - two different point in graph
+    -------
+
+    """
+    nodes = list(graph.nodes())
+    f, t = random.choice(nodes), random.choice(nodes)
+    while f == t:
+        f, t = random.choice(nodes), random.choice(nodes)
+    return f, t
+
+
+def generate_points(graph: nx.Graph, num: int = 1000) -> list[tuple[int, int]]:
+    """
+
+    Parameters
+    ----------
+    graph - graph
+    num - number of points
+
+    Returns list of start and end points
+    -------
+
+    """
+    return [get_node_for_initial_graph(graph) for _ in range(num)]

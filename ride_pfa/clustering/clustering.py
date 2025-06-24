@@ -70,7 +70,7 @@ class LouvainKMeansCommunityResolver(LouvainCommunityResolver):
     k_means_weight: Optional[str] = None
 
     def do_resolve(self, g: nx.Graph) -> Community:
-        communities = super().resolve(g)
+        communities = super().do_resolve(g)
         return self.do_resolve_kmeans(g, communities)
 
     def do_resolve_kmeans(self, g: nx.Graph, communities: Community) -> Community:
