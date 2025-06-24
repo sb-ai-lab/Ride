@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from heapq import heappop, heappush
 from itertools import count as count
-from typing import NewType, Union
+from typing import NewType, Union, Optional
 
 import networkx as nx
 from tqdm.auto import trange
@@ -51,8 +51,22 @@ class LouvainCommunityResolver(AbstractCommunityResolver):
 
 @dataclass
 class LouvainKMeansCommunityResolver(LouvainCommunityResolver):
+    """
+        A graph clustering algorithm that takes Louvain's algorithm (for finding centroids) as a basis and then applies K-means
+    """
+    """
+        Number of Iteration for K-means
+    """
+
     max_iteration: int = 20
+    """
+        Print log and progress bar
+    """
     print_log: bool = False
+    """
+        The weight that will be used in K-Means to find the centroid and cluster membership of a point
+    """
+    k_means_weight: Optional[str] = None
 
     def do_resolve(self, g: nx.Graph) -> Community:
         communities = super().resolve(g)
@@ -61,6 +75,7 @@ class LouvainKMeansCommunityResolver(LouvainCommunityResolver):
     def do_resolve_kmeans(self, g: nx.Graph, communities: Community) -> Community:
         if self.print_log:
             log.info(f'communities: {len(communities)}')
+        k_means_weight = self.k_means_weight if self.k_means_weight else self.weight
         _iter = trange(self.max_iteration) if self.print_log else range(self.max_iteration)
         do = True
         for _ in _iter:
@@ -69,10 +84,10 @@ class LouvainKMeansCommunityResolver(LouvainCommunityResolver):
             centers = []
             for i, cls in enumerate(communities):
                 gc = g.subgraph(communities[i])
-                center = nx.barycenter(gc, weight=self.weight)[0]
+                center = nx.barycenter(gc, weight=k_means_weight)[0]
                 centers.append(center)
 
-            node2cls = k_means(g, centers, weight=self.weight)
+            node2cls = k_means(g, centers, weight=k_means_weight)
             do = False
             for u, i in node2cls.items():
                 if u not in communities[i]:

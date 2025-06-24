@@ -1,6 +1,7 @@
 import time
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
+import networkx as nx
 import numpy as np
 
 __all__ = [
@@ -21,3 +22,27 @@ def get_execution_time(func: Callable, iterations=2, *args, **kwargs) -> tuple[f
         result = func(*args, **kwargs)
     end = time.time()
     return (end - start) / iterations, result
+
+
+def add_inverse_edges_weight(
+        g: nx.Graph,
+        weight: str,
+        inverse_weight: Optional[str] = None,
+        eps: float = 0.0001) -> str:
+    """
+
+    Parameters
+    ----------
+    g - nx.Graph
+    weight - name of edges weight for inverse
+    inverse_weight - optional inverse weight name. If None then  "inverse_{weight}" will be used.
+    eps - epsilon to avoid division by 0
+    Returns - name of inverse edge weight.
+    -------
+
+    """
+    if inverse_weight is None:
+        inverse_weight = f'inverse_{weight}'
+    for u, v, d in g.edges(data=True):
+        d[inverse_weight] = 1 / (d[weight] + eps)
+    return inverse_weight
