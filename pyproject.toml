@@ -29,6 +29,13 @@ optional = true
 scikit-learn = "^1.4.2"
 kmedoids = "^0.5.3.1"
 
+[tool.poetry.group.vrp]
+optional = true
+[tool.poetry.group.vrp.dependencies]
+ortools = "^9.14.6206"
+igraph = "^0.11.9"
+leidenalg = "^0.10.2"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
