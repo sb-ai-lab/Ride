@@ -63,7 +63,7 @@ class LouvainKMeansCommunityResolver(LouvainCommunityResolver):
     """
         Print progress bar
     """
-    tqdm_progress_bar: bool = False
+    with_tqdm_progress_bar: bool = False
     """
         The weight that will be used in K-Means to find the centroid and cluster membership of a point
     """
@@ -77,7 +77,7 @@ class LouvainKMeansCommunityResolver(LouvainCommunityResolver):
         log.debug(f'communities: {len(communities)}')
 
         k_means_weight = self.k_means_weight if self.k_means_weight else self.weight
-        if self.tqdm_progress_bar:
+        if self.with_tqdm_progress_bar:
             _iter = with_progress(range(self.max_iteration), desc='k_means iterations')
         else:
             _iter = range(self.max_iteration)

@@ -9,6 +9,7 @@ T = TypeVar('T')
 __all__ = [
     'IterableKwargsCallable',
     'TqdmIterableKwargsCallable',
+    'DefaultIterableKwargsCallable',
     'set_custom_progress_bar',
     'with_progress'
 ]

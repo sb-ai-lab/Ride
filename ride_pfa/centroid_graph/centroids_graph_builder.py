@@ -23,7 +23,7 @@ class CentroidGraph:
 
 @dataclass
 class CentroidGraphBuilder:
-    tqdm_progress_bar: bool = False,
+    with_tqdm_progress_bar: bool = False,
     name: str = 'cluster'
     weight: str = 'length'
 
@@ -35,7 +35,7 @@ class CentroidGraphBuilder:
             graph=g,
             communities=cms,
             cls2n=cls2n,
-            tqdm_progress_bar=self.tqdm_progress_bar,
+            with_tqdm_progress_bar=self.with_tqdm_progress_bar,
             name=self.name,
             weight=self.weight
         )
@@ -92,13 +92,13 @@ def build_center_graph(
         graph: nx.Graph,
         communities: Community,
         cls2n: dict[int: set[int]],
-        tqdm_progress_bar: bool = False,
+        with_tqdm_progress_bar: bool = False,
         name: str = 'cluster',
         weight: str = 'length'
 ) -> tuple[nx.Graph, dict[int, int]]:
     x_graph = nx.Graph()
     cls2center = {}
-    if tqdm_progress_bar:
+    if with_tqdm_progress_bar:
         _iter = with_progress(enumerate(communities), total=len(communities), desc='find centroids')
     else:
         _iter = enumerate(communities)
@@ -112,7 +112,7 @@ def build_center_graph(
 
     if len(x_graph.nodes) == 1:
         return x_graph, cls2center
-    if tqdm_progress_bar:
+    if with_tqdm_progress_bar:
         _iter = with_progress(x_graph.nodes(), desc='find edges')
     else:
         _iter = x_graph.nodes()

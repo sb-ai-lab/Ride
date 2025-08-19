@@ -77,7 +77,7 @@ class PfaComparator:
 
     workers: int = 4
     iterations: int = 4
-    with_tqdm_log: bool = True
+    with_tqdm_progress_bar: bool = True
 
     def test(self, pfa: PathFinding, u: int, v: int):
         def func():
@@ -92,7 +92,7 @@ class PfaComparator:
 
         log.debug('start %i workers', worker_number)
 
-        if self.with_tqdm_log:
+        if self.with_tqdm_progress_bar:
             # For tqdm loading in notebooks
             sleep(worker_number / 10)
             _iter = with_progress(
