@@ -1,10 +1,18 @@
+import logging
 import random
 from typing import Optional
 
-import folium
 import networkx as nx
 
 from ride_pfa.clustering import Community
+
+log = logging.getLogger(__name__)
+
+try:
+    import folium
+except ImportError as e:
+    log.error("folium package is not installed. Use >>> pip install folium OR >>> poetry add folium")
+    raise e
 
 __all__ = [
     'draw_graph_folium',
@@ -53,9 +61,9 @@ def draw_graph_folium(
 
 
 def draw_path_folium(graph: nx.Graph, path: list[int],
-              m: Optional[folium.Map],
-              color: str = 'red',
-              weight: float = 5) -> folium.Map:
+                     m: Optional[folium.Map],
+                     color: str = 'red',
+                     weight: float = 5) -> folium.Map:
     x = [graph.nodes[node]['x'] for node in path]
     y = [graph.nodes[node]['y'] for node in path]
     if not m:

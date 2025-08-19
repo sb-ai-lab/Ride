@@ -1,20 +1,20 @@
+import logging
 from dataclasses import dataclass
 from multiprocessing import Pool
 from time import sleep
 
 import numpy as np
-from tqdm.auto import tqdm
 
 from .path_finding.pfa import PathFinding
-
-__version__ = "1.0"
+from .tqdm_progress_bar import with_progress
+from .utils import get_execution_time
 
 __all__ = [
     "Statistics",
     "PfaComparator"
 ]
 
-from .utils import get_execution_time
+log = logging.getLogger(__name__)
 
 
 class Statistics:
@@ -29,7 +29,7 @@ class Statistics:
 
     def __add__(self, other):
         if not isinstance(other, Statistics):
-            raise Exception('what do you do?')
+            raise Exception('what do you do? It should be a Statistics')
         s = Statistics()
         for f in vars(s):
             if not f.startswith('__'):
@@ -77,7 +77,7 @@ class PfaComparator:
 
     workers: int = 4
     iterations: int = 4
-    print_log = True
+    with_tqdm_log: bool = True
 
     def test(self, pfa: PathFinding, u: int, v: int):
         def func():
@@ -90,17 +90,19 @@ class PfaComparator:
 
         stat = Statistics()
 
-        if self.print_log:
+        log.debug('start %i workers', worker_number)
+
+        if self.with_tqdm_log:
             # For tqdm loading in notebooks
             sleep(worker_number / 10)
-            print('start', worker_number)
-            _iter = tqdm(
+            _iter = with_progress(
                 point_partition,
                 desc='find paths',
                 position=worker_number
             )
         else:
             _iter = point_partition
+
         for p1, p2 in _iter:
             time_l, (l, p) = self.test(self.baseline, p1, p2)
 
@@ -113,6 +115,7 @@ class PfaComparator:
             stat.test_time.append(time_h)
             stat.test_length.append(h_l)
             stat.test_path.append(h_p)
+
         return stat
 
     def compare(self) -> Statistics:

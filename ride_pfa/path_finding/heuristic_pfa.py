@@ -7,11 +7,11 @@ from typing import Callable
 
 import networkx as nx
 import numpy as np
-from tqdm.auto import tqdm
 
 from ride_pfa.clustering import AbstractCommunityResolver, Community
 from ride_pfa.path_finding.dijkstra_pfa import AStar
 from ride_pfa.path_finding.pfa import PathFinding
+from ride_pfa.tqdm_progress_bar import with_progress
 
 __all__ = [
     'HeuristicBuilder',
@@ -37,13 +37,14 @@ class MinClusterDistanceCallable(Callable[[int, int], float]):
         n1, n2 = nodes[u], nodes[v]
         c11 = n1[self.cluster]
         c12 = n2[self.cluster]
-        return d_clusters[c11, c12]
+        return float(d_clusters[c11, c12])
 
 
 @dataclass
 class MinClusterDistanceBuilder(HeuristicBuilder):
     workers: int = 4
     cluster = 'cluster'
+    with_tqdm_progress_bar: bool = False
 
     def build_astar(self, g: nx.Graph, cms: AbstractCommunityResolver | Community) -> PathFinding:
         if isinstance(cms, AbstractCommunityResolver):
@@ -56,7 +57,9 @@ class MinClusterDistanceBuilder(HeuristicBuilder):
             d_clusters = calc(data[0])
         else:
             with Pool(w) as p:
-                d_clusters = sum(tqdm(p.imap_unordered(calc, data), total=len(data)))
+                _iter = p.imap_unordered(calc, data)
+                _iter = with_progress(_iter, total=len(data)) if self.with_tqdm_progress_bar else _iter
+                d_clusters = sum(_iter)
 
         nodes = g.nodes()
         return AStar(g, h=MinClusterDistanceCallable(nodes, d_clusters, cluster=self.cluster))
@@ -66,12 +69,12 @@ def dijkstra_pfa_min_dst(graph: nx.Graph,
                          start: set[int],
                          weight: str = 'length'
                          ) -> \
-        dict[float]:
+        dict[int, float]:
     adjacency = graph._adj
     c = count()
     push = heappush
     pop = heappop
-    dist = {}
+    dist: dict[int, float] = {}
     fringe = []
     for s in start:
         push(fringe, (0.0, next(c), s))

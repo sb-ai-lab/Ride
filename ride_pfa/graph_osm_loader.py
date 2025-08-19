@@ -1,9 +1,9 @@
+import logging
 import os
 import pickle
 from typing import Optional
 
 import networkx as nx
-import osmnx as ox
 
 __all__ = [
     "get_graph",
@@ -22,12 +22,16 @@ osm_cities_example = {
     'Delhi': 'R1942586'
 }
 
+log = logging.getLogger(__name__)
+
 
 # load graph
 def get_graph(city_id: str = 'R2555133', cache_path: Optional[str] = None) -> nx.Graph:
     id_graph = city_id
     name = f'{id_graph}.pickle'
     if cache_path is not None:
+        if not os.path.exists(cache_path):
+            os.makedirs(cache_path)
         path = os.path.join(cache_path, name)
         if os.path.exists(path):
             with open(path, 'rb') as fp:
@@ -46,6 +50,12 @@ def get_graph(city_id: str = 'R2555133', cache_path: Optional[str] = None) -> nx
 
 
 def _get_gr(city_id):
+    try:
+        import osmnx as ox
+    except ImportError as e:
+        log.error("osmnx is not installed. use >>> pip install osmnx OR >>> poetry add osmnx")
+        raise e
+
     gdf = ox.geocode_to_gdf(city_id, by_osmid=True)
     polygon_boundary = gdf.unary_union
     graph = ox.graph_from_polygon(polygon_boundary,
