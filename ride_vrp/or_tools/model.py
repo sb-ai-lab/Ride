@@ -4,8 +4,8 @@ from typing import Self, Protocol, Iterable, Callable
 
 from ortools.constraint_solver import pywrapcp
 from ortools.util.optional_boolean_pb2 import BOOL_FALSE, BOOL_TRUE
-from vrp_study.common_model import ModelFactory, Solver
-from vrp_study.routing_manager import RoutingManager, InnerNode
+from ride_vrp.common_model import ModelFactory, Solver
+from ride_vrp.routing_manager import RoutingManager, InnerNode
 
 from .callback import SolutionCallback
 from ..configs import ModelConfig

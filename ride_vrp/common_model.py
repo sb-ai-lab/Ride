@@ -1,6 +1,6 @@
 from typing import TypeVar, Protocol, runtime_checkable
 
-from vrp_study.routing_manager import RoutingManager, InnerNode
+from ride_vrp.routing_manager import RoutingManager, InnerNode
 
 M_cov = TypeVar('M_cov', covariant=True)
 M_contr = TypeVar('M_contr', contravariant=True)
