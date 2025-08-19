@@ -44,4 +44,4 @@ class LoggingCallback(SolutionCallback):
         self._best_objective = min(self._best_objective, value)
         best = self._best_objective
         delta = time.time() - self.start_time
-        print(f'time: {delta:.3f}; new solution ({count}): {value}; best solution: {best}')
+        log.info(f'time: {delta:.3f}; new solution ({count}): {value}; best solution: {best}')
