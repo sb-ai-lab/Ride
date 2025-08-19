@@ -1,12 +1,10 @@
 from dataclasses import dataclass
 
 import networkx as nx
-from tqdm.auto import tqdm
 
-from ride_pfa import utils
 from ride_pfa.clustering import AbstractCommunityResolver, Community
 from ride_pfa.path_finding.advenced_pfa import PathFindingAdvanced
-
+from ride_pfa.tqdm_progress_bar import with_progress
 
 __all__ = [
     "CentroidGraph",
@@ -25,7 +23,7 @@ class CentroidGraph:
 
 @dataclass
 class CentroidGraphBuilder:
-    log: bool = False,
+    with_tqdm_progress_bar: bool = False,
     name: str = 'cluster'
     weight: str = 'length'
 
@@ -37,8 +35,7 @@ class CentroidGraphBuilder:
             graph=g,
             communities=cms,
             cls2n=cls2n,
-
-            log=self.log,
+            with_tqdm_progress_bar=self.with_tqdm_progress_bar,
             name=self.name,
             weight=self.weight
         )
@@ -50,6 +47,7 @@ class CentroidGraphBuilder:
             cms=cms
         )
         return cg
+
 
 # cluster to neighboring clusters
 def get_cluster_adjacency_matrix(graph: nx.Graph, name='cluster') -> dict[int: set[int]]:
@@ -94,14 +92,17 @@ def build_center_graph(
         graph: nx.Graph,
         communities: Community,
         cls2n: dict[int: set[int]],
-        log: bool = False,
+        with_tqdm_progress_bar: bool = False,
         name: str = 'cluster',
         weight: str = 'length'
 ) -> tuple[nx.Graph, dict[int, int]]:
     x_graph = nx.Graph()
     cls2center = {}
-    _iter = tqdm(enumerate(communities), total=len(communities), desc='find centroids') if log else enumerate(
-        communities)
+    if with_tqdm_progress_bar:
+        _iter = with_progress(enumerate(communities), total=len(communities), desc='find centroids')
+    else:
+        _iter = enumerate(communities)
+
     for cls, _ in _iter:
         gc = extract_cluster_list_subgraph(graph, {cls}, communities)
         min_node = nx.barycenter(gc, weight=weight)[0]
@@ -111,7 +112,11 @@ def build_center_graph(
 
     if len(x_graph.nodes) == 1:
         return x_graph, cls2center
-    _iter = tqdm(x_graph.nodes(), desc='find edges') if log else x_graph.nodes()
+    if with_tqdm_progress_bar:
+        _iter = with_progress(x_graph.nodes(), desc='find edges')
+    else:
+        _iter = x_graph.nodes()
+
     a_pfa: PathFindingAdvanced = PathFindingAdvanced(graph, weight=weight)
     for u in _iter:
         lengths = a_pfa.find_distance_to_all(cls2center[u], set(cls2center[v] for v in cls2n[u]))

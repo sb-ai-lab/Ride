@@ -1,23 +1,31 @@
+import logging
 import random
 from typing import Optional
 
 import networkx as nx
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
 from ride_pfa.clustering import Community
+
+log = logging.getLogger(__name__)
+
+try:
+    import matplotlib.pyplot as plt
+    import matplotlib.patches as mpatches
+except ImportError as e:
+    log.error("matplotlib is not installed. Use >>> pip install matplotlib or poetry add matplotlib")
 
 __all__ = [
     'draw_graph_matplotlib',
     'draw_paths_matplotlib'
 ]
 
+
 def draw_graph_matplotlib(graph: nx.Graph, cms: Optional[Community] = None, ax: Optional[plt.Axes] = None):
     if ax is None:
         _, ax = plt.subplots(figsize=(20, 20))
 
     pos = {node: (graph.nodes[node]['x'], graph.nodes[node]['y']) for node in graph.nodes()}
-    
+
     if cms is not None:
         colors = generate_colors(len(cms))
         for i, c in cms:
@@ -26,7 +34,7 @@ def draw_graph_matplotlib(graph: nx.Graph, cms: Optional[Community] = None, ax: 
         nx.draw_networkx_nodes(graph, pos, node_color='blue', ax=ax, node_size=10)
 
     nx.draw_networkx_edges(graph, pos, edge_color='gray', width=1, ax=ax)
-    
+
     ax.set_title("Graph Visualization")
     ax.set_xlabel("Longitude")
     ax.set_ylabel("Latitude")
@@ -65,7 +73,7 @@ def draw_paths_matplotlib(graph: nx.Graph, paths: list[tuple[list[int], str]], a
         total_length = sum(graph.edges[u, v].get('length', 0) for u, v in path_edges)
 
         # Добавляем элемент в легенду
-        legend_patches.append(mpatches.Patch(color=color, label=f"Path {i+1}: {total_length:.2f}"))
+        legend_patches.append(mpatches.Patch(color=color, label=f"Path {i + 1}: {total_length:.2f}"))
 
     # Добавляем легенду
     ax.legend(handles=legend_patches, loc="upper right")

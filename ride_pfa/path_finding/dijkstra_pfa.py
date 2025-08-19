@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from heapq import heappop, heappush
 from itertools import count
-from typing import Callable, Optional
+from typing import Callable, Optional, cast
 
 from ride_pfa.exceptions import RidePathNotFoundException
 from ride_pfa.path_finding.pfa import Path, PathFindingCls
@@ -21,7 +21,7 @@ class Dijkstra(PathFindingCls):
                       end: int,
                       cms: Optional[set[int]] = None) -> Path:
         if start == end:
-            return 0.0, [start]
+            return cast(Path, (0.0, [start]))
         weight: str = self.weight
         cluster: str = self.cluster
         graph = self.g
@@ -59,7 +59,7 @@ class Dijkstra(PathFindingCls):
             path[i] = e
             i -= 1
             e = pred[e]
-        return d, path
+        return cast(Path, (d, path))
 
 
 @dataclass
@@ -69,7 +69,7 @@ class BiDijkstra(PathFindingCls):
                       end: int,
                       cms: Optional[set[int]] = None) -> Path:
         if start == end:
-            return 0, [start]
+            return cast(Path, (0.0, [start]))
 
         weight: str = self.weight
         cluster: str = self.cluster
@@ -140,7 +140,7 @@ class BiDijkstra(PathFindingCls):
             i += 1
             e = dist[1][e][2]
         path[-1] = e
-        return union_dst, path
+        return cast(Path, (union_dst, path))
 
 
 def zero(u, v):
@@ -156,7 +156,7 @@ class AStar(PathFindingCls):
                       end: int,
                       cms: Optional[set[int]] = None) -> Path:
         if start == end:
-            return 0.0, [start]
+            return cast(Path, (0.0, [start]))
 
         weight: str = self.weight
         cluster: str = self.cluster
@@ -190,4 +190,4 @@ class AStar(PathFindingCls):
         while e is not None:
             path.append(e)
             e = dist[e][1]
-        return d, path[::-1]
+        return cast(Path, (dist[end], path[::-1]))

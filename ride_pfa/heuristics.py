@@ -1,10 +1,21 @@
+import logging
 from typing import Optional
 
-import numpy as np
 import networkx as nx
+import numpy as np
 
-import kmedoids
-from sklearn.cluster import HDBSCAN
+log = logging.getLogger(__name__)
+
+try:
+    import kmedoids
+except ImportError as e:
+    log.error("kmedoids is not installed")
+    raise e
+try:
+    from sklearn.cluster import HDBSCAN
+except ImportError as e:
+    log.error("sklearn is not installed")
+    raise e
 
 __all__ = [
     "angle_clustering",
@@ -34,7 +45,7 @@ def angle_clustering(dg: nx.Graph,
     ----------
     dg : nx.Graph
         Graph of deliveries, where each node is eithe a strating point or delivery point.
-    central_node_d : int 
+    central_node_d : int
         Graph id of central node (or hub), which serves as vectors' starting point
     end_nodes : set = None
         Set of ids, to specify end nodes of vectors. By default all nodes in Graph are treated as end nodes
@@ -87,7 +98,7 @@ def spherical_medoids(dg: nx.Graph,
     ----------
     dg : nx.Graph
         Graph of deliveries, where each node is eithe a strating point or delivery point.
-    central_node_d : int 
+    central_node_d : int
         Graph id of central node (or hub), which serves as vectors' starting point
     end_nodes : set = None
         Set of ids, to specify end nodes of vectors. By default all nodes in Graph are treated as end nodes
@@ -118,7 +129,7 @@ def spherical_medoids(dg: nx.Graph,
         dg.nodes[id]['angle_cluster'] = -1
 
     vectors = np.array([[d['y'] - central_node['y'], d['x'] - central_node['x']]
-                       for u, d in dg.nodes(data=True) if u in end_nodes and u not in invalid_nodes])
+                        for u, d in dg.nodes(data=True) if u in end_nodes and u not in invalid_nodes])
     vectors /= np.linalg.norm(vectors, axis=1, keepdims=True)
     d_matrix = np.arccos(vectors @ vectors.T)
 
@@ -143,7 +154,7 @@ def radial_clustering(dg: nx.Graph,
     ----------
     dg : nx.Graph
         Graph of deliveries, where each node is eithe a strating point or delivery point.
-    central_node_d : int 
+    central_node_d : int
         Graph id of central node (or hub), which serves as vectors' starting point
     len_attrbute : str = 'length'
         Key word for accessing infromation about the length of the delivery in edge.

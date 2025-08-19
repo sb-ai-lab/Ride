@@ -6,7 +6,8 @@ from itertools import count as count
 from typing import NewType, Union, Optional
 
 import networkx as nx
-from tqdm.auto import trange
+
+from ride_pfa.tqdm_progress_bar import with_progress
 
 __all__ = [
     'Community',
@@ -58,12 +59,11 @@ class LouvainKMeansCommunityResolver(LouvainCommunityResolver):
     """
         Number of Iteration for K-means
     """
-
     max_iteration: int = 20
     """
-        Print log and progress bar
+        Print progress bar
     """
-    print_log: bool = False
+    with_tqdm_progress_bar: bool = False
     """
         The weight that will be used in K-Means to find the centroid and cluster membership of a point
     """
@@ -74,11 +74,16 @@ class LouvainKMeansCommunityResolver(LouvainCommunityResolver):
         return self.do_resolve_kmeans(g, communities)
 
     def do_resolve_kmeans(self, g: nx.Graph, communities: Community) -> Community:
-        if self.print_log:
-            log.info(f'communities: {len(communities)}')
+        log.debug(f'communities: {len(communities)}')
+
         k_means_weight = self.k_means_weight if self.k_means_weight else self.weight
-        _iter = trange(self.max_iteration) if self.print_log else range(self.max_iteration)
+        if self.with_tqdm_progress_bar:
+            _iter = with_progress(range(self.max_iteration), desc='k_means iterations')
+        else:
+            _iter = range(self.max_iteration)
+
         do = True
+
         for _ in _iter:
             if not do:
                 continue
