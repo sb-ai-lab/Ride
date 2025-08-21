@@ -1,46 +1,47 @@
-[tool.poetry]
-name = "ride"
+[project]
+name = "ride_pfa"
 version = "0.2.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
+description = "Library for pathfinding and VRP solutions"
+authors = [
+    { name = "Fedorov Dmitry", email = "dmitry.m.fedorov@gmail.com" },
+    { name = "Zakharenko Nikia", email = "nikitanikolaevichzaharenko@yandex.ru" }
+]
 readme = "README.md"
-include = [
-    "ride_pfa",
-    "ride_vrp"
+requires-python = ">=3.10"
+dependencies = [
+    "networkx>=3.4.2",
+    "numpy>=1.25.2"
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.10"
-networkx = ">=3.4.2"
-numpy = ">=1.25.2"
+[project.optional-dependencies]
+vrp = [
+    "ortools>=9.14.6206,<10.0",
+    "igraph>=0.11.9,<0.12.0",
+    "leidenalg>=0.10.2,<0.11.0"
+]
+viz = [
+    "geopandas>=0.14.4,<0.15.0",
+    "matplotlib>=3.8.4,<4.0.0",
+    "folium>=0.17.0,<0.18.0"
+]
+heuristic = [
+    "scikit-learn>=1.4.2,<1.5.0",
+    "kmedoids>=0.5.3.1,<0.6.0"
+]
+dev = [
+    "tqdm>=4.67.1,<5.0.0",
+    "osmnx>=1.9.3,<2.0.0",
+    "jupyter>=1.1.1,<2.0.0",
+    "pytest>=7.4.0,<8.0.0",
+    "black>=23.7.0,<24.0.0"
+]
 
-[tool.poetry.group.dev.dependencies]
-tqdm = "^4.67.1"
-osmnx = ">=1.9.3"
-jupyter = "^1.1.1"
-
-[tool.poetry.group.drawing]
-optional = true
-[tool.poetry.group.drawing.dependencies]
-geopandas = ">=0.14.4"
-matplotlib = ">=3.8.4"
-folium = ">=0.17.0"
-
-[tool.poetry.group.heuristic]
-optional = true
-[tool.poetry.group.heuristic.dependencies]
-scikit-learn = "^1.4.2"
-kmedoids = "^0.5.3.1"
-
-[tool.poetry.group.vrp]
-optional = true
-[tool.poetry.group.vrp.dependencies]
-ortools = "^9.14.6206"
-igraph = "^0.11.9"
-leidenalg = "^0.10.2"
+[tool.poetry]
+packages = [
+    { include = "ride_pfa" },
+    { include = "ride_vrp" }
+]
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-

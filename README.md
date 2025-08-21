@@ -18,6 +18,40 @@ to install via pip witр pypi do:
 !pip install ride-pfa
 ```
 
+## Базовая установка (только ride_pfa)
+```jupyterpython
+# Только основные зависимости для работы с графами
+poetry install --only main
+# или без дополнительных групп
+poetry install --no-dev --no-optional
+```
+
+## Установка с дополнительными возможностями
+```jupyterpython
+
+#VRP решения (ride_vrp):
+poetry install --with vrp
+
+#Визуализация данных:
+poetry install --with viz
+
+#Эвристические методы:
+poetry install --with heuristic
+```
+
+## Комбинированная установка:
+```jupyterpython
+# VRP + визуализация
+poetry install --with vrp,viz
+
+# Все зависимости включая dev-инструменты
+poetry install --with dev
+
+# Или конкретные группы для разработки
+poetry install --with vrp,viz,dev
+```
+
+
 
 # Quick start
 
