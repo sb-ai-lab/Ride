@@ -1,7 +1,8 @@
-from typing import Dict, Tuple, Optional, List
+from typing import Optional, List
 
 import numpy as np
 
+from ride_vrp.distance_matrix import DistanceMatrix
 from ride_vrp.routing_manager import RoutingManagerBuilder, InnerNode, Pdp, InnerCar
 
 
@@ -9,12 +10,10 @@ class PDPLiLimRoutingManagerBuilder(RoutingManagerBuilder):
 
     def __init__(
             self,
-            distance_matrix: Dict[Tuple[object, object], float],
-            time_matrix: Dict[Tuple[object, object], float]
+            distance_matrix: DistanceMatrix,
     ):
         super().__init__(
-            distance_matrix=distance_matrix,
-            time_matrix=time_matrix
+            distance_matrix=distance_matrix
         )
         self._start_node: Optional[InnerNode] = None
         self._common_end_node: Optional[InnerNode] = None

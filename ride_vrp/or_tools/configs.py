@@ -13,7 +13,3 @@ class ModelConfig:
     first_solution_type: routing_enums_pb2.FirstSolutionStrategy = field(
         default=routing_enums_pb2.FirstSolutionStrategy.PARALLEL_CHEAPEST_INSERTION)
 
-
-@dataclass
-class ConstraintConfig:
-    ...

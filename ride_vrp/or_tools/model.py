@@ -8,7 +8,7 @@ from ride_vrp.common_model import ModelFactory, Solver
 from ride_vrp.routing_manager import RoutingManager, InnerNode
 
 from .callback import SolutionCallback
-from ..configs import ModelConfig
+from ride_vrp.or_tools.configs import ModelConfig
 from ..exceptions import SolutionNoFoundException
 from ..initial_solution_builder import InitialSolutionBuilder
 

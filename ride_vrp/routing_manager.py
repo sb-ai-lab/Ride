@@ -6,6 +6,7 @@ import numpy as np
 
 from .data_model import Tariff, Cargo, Node
 from .data_model import TariffCost
+from .distance_matrix import DistanceMatrix
 
 
 @dataclass
@@ -100,12 +101,10 @@ class RoutingManager:
 
 class RoutingManagerBuilder(ABC):
     def __init__(self,
-                 distance_matrix: dict[tuple[object, object], float],
-                 time_matrix: dict[tuple[object, object], float],
+                 distance_matrix: DistanceMatrix
                  ):
 
-        self.distance_matrix: dict[tuple[object, object], float] = distance_matrix
-        self.time_matrix: dict[tuple[object, object], float] = time_matrix
+        self.distance_matrix: DistanceMatrix = distance_matrix
 
         self._nodes: list[Node] = []
         self._depots: list[Node] = []
@@ -251,7 +250,7 @@ class RoutingManagerBuilder(ABC):
                     continue
                 if n1.routing_node.id == n2.routing_node.id:
                     continue
-                dsts[i, j] = self.distance_matrix[n1.routing_node.id, n2.routing_node.id]
-                time[i, j] = self.time_matrix[n1.routing_node.id, n2.routing_node.id]
+                dsts[i, j] = self.distance_matrix.get_distance(n1.routing_node.id, n2.routing_node.id)
+                time[i, j] = self.distance_matrix.get_time(n1.routing_node.id, n2.routing_node.id)
         self._np_dsts = dsts
         self._np_time = time
