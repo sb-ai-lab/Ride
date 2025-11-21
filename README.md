@@ -3,6 +3,8 @@
 
 RIDE is a Python library designed to accelerate Dijkstra's algorithm on diverse graph structures using a hierarchical approach. This method involves solving problems on simplified graphs and subsequently combining solutions into a comprehensive result. The technique is rooted in graph partitioning, dividing the original graph into clusters. By leveraging this division, RIDE eliminates numerous suboptimal route constructions, achieving significant speedup without compromising accuracy. The library offers multiple-fold acceleration compared to traditional methods. Detailed information about the underlying methodology will be available in a forthcoming academic article, providing in-depth insights into the algorithm's mechanics and performance.
 
+[Our Article](https://epjdatascience.springeropen.com/articles/10.1140/epjds/s13688-025-00542-0)
+
 ***It is worth noting that this method works for both transport and abstract graphs.***
 
 <img align="left" src="./images/Telegram_logo.svg.png" width="3%">[Telergam support](https://t.me/+mQfNwNFYp5w0MDZi)
